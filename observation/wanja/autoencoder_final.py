@@ -10,6 +10,7 @@ from keras import layers
 
 # This is the size of our encoded representations
 # this parameter has to be finetuned, it highly influences the quality of the encoding
+# encode state into 2-embedding and send as message??
 encoding_dim = 32
 
 # This is our input image
