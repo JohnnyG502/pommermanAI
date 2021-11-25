@@ -1,0 +1,3 @@
+[submodule "mcts/lorenz/mts/lorenz/playground"]
+	path = mcts/lorenz/mts/lorenz/playground
+	url = https://github.com/MultiAgentLearning/playground
