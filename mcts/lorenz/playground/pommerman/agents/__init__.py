@@ -8,3 +8,4 @@ from .random_agent import RandomAgent
 from .simple_agent import SimpleAgent
 from .our_agent import OurAgent
 from .tensorforce_agent import TensorForceAgent
+from .wanja import MCTSAgent

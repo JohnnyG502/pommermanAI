@@ -15,8 +15,8 @@ def main():
     agent_list = [
         agents.SimpleAgent(),
         agents.SimpleAgent(),
+        agents.MCTSAgent(),
         agents.SimpleAgent(),
-        agents.OurAgent(),
         # agents.DockerAgent("pommerman/simple-agent", port=12345),
     ]
     # Make the "Free-For-All" environment using the agent list
