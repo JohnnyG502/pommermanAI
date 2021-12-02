@@ -12,6 +12,7 @@ import pommerman
 from pommerman.agents import BaseAgent, SimpleAgent
 from pommerman import constants
 from pommerman import forward_model
+from pommerman import characters
 from pommerman import utility
 from .A3C_v10_cnn_lstm import A3CNet, A3CAgent, load_checkpoint
 from .sharedAdam import SharedAdam
@@ -129,6 +130,7 @@ class MCTSAgent(BaseAgent):
         root = str(self._get_obs_json_info(obs))
 
         for i in range(num_iters):
+            print(i)
             # restore game state to root node
             obs = self.init_game_state
             # serialize game state
@@ -138,15 +140,12 @@ class MCTSAgent(BaseAgent):
             done = False
             while not done:
                 if state in self.tree:
-                    print("end up in if")
                     node = self.tree[state]
                     # choose actions based on Q + U
                     action = node.action()
                     trace.append((node, action))
                 else: # here we reached a leaf -> use a network
-
                     out, raw = observe(obs)
-
                     logit, value, (hn, cn) = self.model(torch.from_numpy(out).float().unsqueeze(0).unsqueeze(0),
                                                         torch.from_numpy(raw).float().unsqueeze(0).unsqueeze(0),
                                                         self.hn, self.cn)
@@ -167,7 +166,7 @@ class MCTSAgent(BaseAgent):
                     reward = value.flatten().detach().numpy()
 
                     # add new node to the tree
-                    print("end up in else")
+
                     self.tree[state] = MCTSNode(probs)
 
                     # stop at leaf node
@@ -176,42 +175,44 @@ class MCTSAgent(BaseAgent):
                 # ensure we are not called recursively (I don't think we need this)
                 # assert self.env.training_agent == self.agent_id
                 # make other agents act
+                print("get agents for step prediction: ")
+                print(obs["board"])
                 agents = self._get_agents(obs["board"], self.game_type)
                 observations = _get_observations(obs)
                 # obs contains observation per agent
                 actions = self.forward_model.act(agents, observations, spaces.Discrete(6))
                 # add my action to list of actions (where does action come from?)
-                print("End up using action: ")
-                print(action)
                 actions.insert(self.agent_id, action)
                 # step environment forward
                 bombs = _get_bombs(obs['bomb_blast_strength'], obs['bomb_life'], obs['bomb_moving_direction'], agents)
                 # reduce number of items according to heuristic
                 items = utility.make_items(obs['board'], constants.NUM_ITEMS)
                 flames = _get_flames(obs['flame_life'])
-                print("before step")
                 new_board, new_agents, new_bombs, new_items, new_flames = self.forward_model.step(
                 actions, obs['board'], agents, bombs, items, flames)
-                print("before get_observations")
+                print("new board: ")
+                print(new_board)
                 new_observations = self.forward_model.get_observations(
                 new_board, new_agents, new_bombs, new_flames, True, 5, self.game_type, obs['game_env'])
+                print("getting observation: ")
+                print(new_observations[self.agent_id])
                 #obs, rewards, done, info = self.env.step(actions)
                 #reward = rewards[self.agent_id]
+                new_step_count = obs['step_count'] + 1
                 obs = new_observations[self.agent_id]
+                obs['step_count'] = new_step_count
                 # fetch next state
+                print("get json after simulation")
                 state = str(self._get_obs_json_info(obs))
 
             # update tree nodes with rollout results
-            print("before update node loop")
             for node, action in reversed(trace):
-                print("before update node")
                 node.update(action, reward)
                 reward *= self.discount
 
         # reset env back where we were
         #self.env.set_json_info()
         # return action probabilities
-        print("before return")
         return self.tree[root].probs(temperature)
 
     def rollout(self):
@@ -252,19 +253,20 @@ class MCTSAgent(BaseAgent):
 
     def act(self, obs, action_space):
         #obs = format_of_environment
-        #print(obs)
         pi = self.search(obs, self.mcts_iters, self.temperature)
-        #print(pi)
         action = np.random.choice(NUM_ACTIONS, p=pi)
         return action
 
     def _get_obs_json_info(self, obs):
         """Returns a json snapshot of the current game state."""
+        print("get agents for json info: ")
+        print(obs["board"])
         agents = self._get_agents(obs["board"], self.game_type)
         bombs = _get_bombs(obs['bomb_blast_strength'], obs['bomb_life'], obs['bomb_moving_direction'], agents)
         flames = _get_flames(obs['flame_life'])
         # reduce number of items according to heuristic
-        items = _make_items(obs['board'], constants.NUM_ITEMS, 0)
+        #items = _make_items(obs['board'], constants.NUM_ITEMS, 0)
+        items = {}
         ret = {
             'board_size': constants.BOARD_SIZE,
             'step_count': obs['step_count'],
@@ -284,7 +286,6 @@ class MCTSAgent(BaseAgent):
         return ret
 
     def _get_agents(self, board, game_type):
-        #print(observation)
         #init agents with game_type and id
         agents = []
         ids = {0, 1, 2, 3}
@@ -295,12 +296,20 @@ class MCTSAgent(BaseAgent):
                     agent.init_agent(board[y][x] - 10, game_type)
                     agent._character.position = (x, y)
                     agents.append(agent)
+                    print("x: " + str(x) + " y: " + str(y))
+                    print(board[y][x] - 10)
+                    print(ids)
                     ids.remove(board[y][x] - 10)
+                    print("amk 1")
+        print("amk2")
         for id in ids:
+            print(str(id))
             agent = SimpleAgent()
             agent.init_agent(id, game_type)
             agent._character.die()
+            agent._character.position = (-1, -1)
             agents.append(agent)
+        print("amk3")
         return agents
 
 def _make_items(board, num_items, seed = 0):
