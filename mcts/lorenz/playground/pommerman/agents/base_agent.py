@@ -1,5 +1,6 @@
 '''This is the base abstraction for agents in pommerman.
 All agents should inherent from this class'''
+import traceback
 from .. import characters
 
 

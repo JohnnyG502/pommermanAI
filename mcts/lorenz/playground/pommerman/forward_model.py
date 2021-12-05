@@ -544,6 +544,7 @@ class ForwardModel(object):
 
         observations = []
         for agent in agents:
+            print(agent)
             agent_obs = {'alive': alive_agents}
             board = curr_board.copy()
             if is_partially_observable:
@@ -560,7 +561,6 @@ class ForwardModel(object):
             agent_obs['flame_life'] = flame_life
             agent_obs['game_type'] = game_type.value
             agent_obs['game_env'] = game_env
-
             for attr in attrs:
                 assert hasattr(agent, attr)
                 agent_obs[attr] = getattr(agent, attr)
