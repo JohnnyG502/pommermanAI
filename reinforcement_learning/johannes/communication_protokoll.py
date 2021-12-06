@@ -90,13 +90,14 @@ class PositionDefinition():
     def ObservationArrToPosTuple(self, observation, enemies):
         e1_pos = -1
         e2_pos = -1
+        me_pos = -1
         it = np.nditer(observation, flags=["multi_index"])
         for obs_val in it:
             if obs_val in enemies:
                 if obs_val == max(enemies): e2_pos = it.multi_index
                 elif obs_val == min(enemies): e1_pos = it.multi_index
-                else: return None
-        return e1_pos, e2_pos
+                elif: obs_val >= 10: me_pos = it.multi_index
+        return e1_pos, e2_pos, me_pos
 
 
 
