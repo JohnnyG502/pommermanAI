@@ -105,6 +105,10 @@ class Training():
         elapsed_mins = int(elapsed_time / 60)
         elapsed_secs = int(elapsed_time - (elapsed_mins * 60))
         return elapsed_mins, elapsed_secs
+
+class createTrainingData():
+    def __init__():
+        pass
     
 def main():
     
@@ -120,10 +124,20 @@ def main():
     # current, previous and optimal observations
     current_obs = data.copy()
     target = np.load("./optimal_observations.npy")
-    previous_obs = data.insert(0, data.pop())
-    
-    # create message based arrays
 
+    # put last state of 4 agents in front
+    for _ in range(4):
+        previous_obs = data.insert(0, data.pop())
+
+    # create message array
+    messages = []
+
+    
+    counter = 0
+
+    for game in data:
+
+    
     
     
     model = PositionPrediction()

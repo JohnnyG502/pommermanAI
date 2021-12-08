@@ -22,25 +22,25 @@ def main():
     
     # Make a list of states as numeric arrays to train encoder-decoder
     number_of_states_to_generate = 50000
-    states = np.empty((number_of_states_to_generate + 50000,11*11))
+    states = []
     counter = 0
 
     # Run the episodes just like OpenAI Gym
     while counter < number_of_states_to_generate:
         state = env.reset()
         done = False
+        game = []
         while not done:
             #env.render()
             actions = env.act(state)
             state, reward, done, info = env.step(actions)
             # new part
-            state_as_arrays = as_arrays(state)
-            states[counter:counter+4] = state_as_arrays
+            game.append(state)
             counter += 4
         print(counter)
+        states.append(game)
     env.close()
-    states = states[:number_of_states_to_generate]
-    np.save("states.npy",states)
+    np.save("states.npy", np.array(states, dtype="object"), allow_pickle=True)
 
 
 
