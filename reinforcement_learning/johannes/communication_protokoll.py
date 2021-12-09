@@ -77,14 +77,15 @@ class PositionDefinition():
             # me_top: 5
             # me_bot: 6
 
-            if obj[0] < 5:
-                if obj[1] > 5: com_vals[index] = 3
-                elif obj[1] <= 5: com_vals[index] = 4
-                if index == 2: com_vals[index] = 5
-            elif obj[0] >= 5:
-                if obj[1] > 5: com_vals[index] = 2
-                elif obj[1] <= 5: com_vals[index] = 1
-                if index == 2: com_vals[index] = 6
+            if type(obj) is tuple: 
+                if obj[0] < 5:
+                    if obj[1] > 5: com_vals[index] = 3
+                    elif obj[1] <= 5: com_vals[index] = 4
+                    if index == 2: com_vals[index] = 5
+                elif obj[0] >= 5:
+                    if obj[1] > 5: com_vals[index] = 2
+                    elif obj[1] <= 5: com_vals[index] = 1
+                    if index == 2: com_vals[index] = 6
         return com_vals
 
     def ObservationArrToPosTuple(self, observation, enemies):
@@ -102,5 +103,4 @@ class PositionDefinition():
 
 
 
-x = CommunicationProtocol("lol")
-print(x.value2message)
+
