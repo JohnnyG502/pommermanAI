@@ -33,8 +33,8 @@ for game in true_obs:
         team_1 = False # 10 and 12
         team_2 = False # 11 and 13
         if len(alive) == 4: team_1, team_2 = True, True 
-        elif 10 and 12 in alive: team_1 = True
-        elif 11 and 13 in alive: team_2 = True
+        elif 10 in alive and 12 in alive: team_1 = True
+        elif 11 in alive and 13 in alive: team_2 = True
         if team_1 or team_2:
             for value in alive:
                 agents_pos[value] = step[value-10]["position"]
@@ -49,8 +49,9 @@ for game in true_obs:
 
                 current_1_true, current_2_true = current_1.copy(), current_2.copy()
                 for key in agents_pos.keys():
-                    current_1_true[agents_pos[key][0], agents_pos[key][1]] = key
-                    current_2_true[agents_pos[key][0], agents_pos[key][1]] = key
+                    if agents_pos[key] != "_":
+                        current_1_true[agents_pos[key][0], agents_pos[key][1]] = key
+                        current_2_true[agents_pos[key][0], agents_pos[key][1]] = key
                 
 
                 if index != 0:
@@ -87,8 +88,9 @@ for game in true_obs:
 
                 current_3_true, current_4_true = current_3.copy(), current_4.copy()
                 for key in agents_pos.keys():
-                    current_3_true[agents_pos[key][0], agents_pos[key][1]] = key
-                    current_4_true[agents_pos[key][0], agents_pos[key][1]] = key
+                    if agents_pos[key] != "_":
+                        current_3_true[agents_pos[key][0], agents_pos[key][1]] = key
+                        current_4_true[agents_pos[key][0], agents_pos[key][1]] = key
 
                 if index != 0:
                     # integrate last perfect obs?

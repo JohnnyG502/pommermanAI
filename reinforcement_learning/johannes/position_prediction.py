@@ -7,37 +7,34 @@ import torch.nn as nn
 from torch import optim
 import torch.nn.functional as F
 from torchvision import models
+from torch.utils.data import Dataset, DataLoader
 
 from sklearn.model_selection import train_test_split
 
 # modules
-from communication_protokoll import ComunicationProtocol, PositionDefinition
+from communication_protokoll import CommunicationProtocol, PositionDefinition
+from utils import *
 
 
 class PositionPrediction(nn.Module):
-    def __init__(self, input_dim, current_obs, last_obs, message_obs):
-        super(PositionPrediction. self).__init__()
+    def __init__(self, input_dim):
+        super().__init__()
 
         self.input_dim = input_dim
         
-        self.cnn1 = nn.Conv3d(16, 33, (3, 5, 2), stride=(2, 1, 1), padding=(4, 2, 0))
-        self.cnn2 = nn.Conv3d(16, 33, (3, 5, 2), stride=(2, 1, 1), padding=(4, 2, 0))
-        self.l1 = nn.Linear()
+        self.cnn1 = nn.Conv2d(input_dim, 7, 2, stride=1)
+        self.cnn2 = nn.Conv2d(5, 1, 2, stride=1)
+        #self.l1 = nn.Linear()
         
         
         self.relu = nn.ReLU()
         self.sig = nn.Sigmoid()
         
+    def forward(self, obs):
         
-
-
-    def forward(self, previous_obs, current_obs, message_obs):
-        input = np.append(previous_obs, current_obs, axis=0)
-        input = np.append(input, message_obs, axis=0)
-        
-        out = self.relu(self.cnn1(input))
+        out = self.relu(self.cnn1(obs))
         out = self.relu(self.cnn2(out))
-        out = self.sig(self.l1(out))
+        #out = self.sig(self.l1(out))
         
         return out
 
@@ -70,6 +67,7 @@ class Training():
         epoch_loss = 0
         
         for batch, input in enumerate(iterator):
+            print(batch, input)
             self.optimizer.zero_grad()
             output = self.model(input)
             
@@ -107,8 +105,37 @@ class Training():
         return elapsed_mins, elapsed_secs
 
 class createTrainingData():
+    pass
+
+class Preprocessing():
     def __init__():
         pass
+
+    
+
+class Dataset(Dataset):
+    def __init__(self, data, labels, elements):
+        self.data = data
+        self.label = labels
+        self.elements = elements
+
+
+    def transformation(self, last_obs, current_obs, message):
+        """
+        transforms from 3 types of observations (last, current, message) into an (X,Y,Z) array of binary encodings
+        """
+        message_obs = transformator.QuadrantToObeservationArr(translator.messageToPosition(message))
+        last_obs, current_obs, message_obs = binaryEncoding(last_obs, self.elements), binaryEncoding(current_obs, self.elements), binaryEncoding(message_obs, self.elements)
+        return np.concatenate((last_obs, current_obs, message_obs), axis=2)
+
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        data, label = self.data[idx], self.labels[idx]
+        data = data.apply(lambda row: self.transformation(row["current_obs"], row["last_obs"], row["message"]), axis=1)
+        return torch.tensor(data), torch.tensor(label)
     
 def main():
     
@@ -116,40 +143,54 @@ def main():
             "epochs": 100,
             "batch_size": 10,
             "l_rate": 0.001,
-            "path": "./saved_models/model_weights.pt"
+            "path": "./saved_models/model_weights.pt",
+            "test_size": 0.5
             }
-    
-    data = np.load("./states.npy")
-    
-    # current, previous and optimal observations
-    current_obs = data.copy()
-    target = np.load("./optimal_observations.npy")
 
-    # put last state of 4 agents in front
-    for _ in range(4):
-        previous_obs = data.insert(0, data.pop())
+    transformator = PositionDefinition()
+    translator = CommunicationProtocol()
 
-    # create message array
-    messages = []
+    elements = [1, 2, 5, 10, 11, 12, 13]
+
+
+    data = pd.read_csv("msg_pred_data.csv")
+    data = data.drop(columns=["Unnamed: 0"], axis=1)
+    data = [np.array(data["current_obs"]), ]
+    current_obs = []
+    last_obs = []
+    data["last_obs"]
+    message = []
+    data["message"]
+
+    print(message)
+
+
+    for arr in data:
+        for 
+        print(val)
+        print(type(val))
+        break
+
+
+    input = data[['current_obs', 'last_obs', 'message']].copy()
+    labels = data[["current_true_obs"]]
+
+
+    X_train, X_test, y_train, y_test = train_test_split(input, labels, test_size=param["test_size"])
+
+    train_loader, test_loader = DataLoader(Dataset(X_train, y_train, elements), batch_size=param["batch_size"], shuffle=True), DataLoader(Dataset(X_test, y_test, elements), batch_size=param["batch_size"], shuffle=True)
+    
 
     
-    counter = 0
-
-    for game in data:
-
     
-    
-    
-    model = PositionPrediction()
-    optimizer = nn.Adam(model.parameter(), lr=param["l_rate"])
+    model = PositionPrediction(len(elements)*3)
+    optimizer = optim.Adam(model.parameters(), lr=param["l_rate"])
     criterion = nn.MSELoss()
     
     training = Training(param["epochs"], param["batch_size"], optimizer, criterion, model)
     
-    training.train_setup(data)
+    training.train_setup(data, param["path"])
     training.evaluate(data)
-
-
 
 if __name__ == main():
     main()

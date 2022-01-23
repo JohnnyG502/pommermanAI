@@ -130,3 +130,6 @@ dmypy.json
 
 # observations
 states.npy
+states.npy
+*.csv
+*.npy

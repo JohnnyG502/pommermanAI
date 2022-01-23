@@ -22,6 +22,7 @@ class CommunicationProtocol():
         return self.message2value[message[0]][message[1]]
 
     def PositionToMessage(self, position):
+        #print(position)
         return list(self.value2message[tuple(position)])
 
 
@@ -65,6 +66,7 @@ class PositionDefinition():
 
 
     def PosTupleToQuadrant(self, e1, e2, me):
+        #print(me)
         com_vals = [0, 0, 0]
         for index, obj in enumerate(list((e1, e2, me))):
             # quadrant (0-5, 0-4): 1
