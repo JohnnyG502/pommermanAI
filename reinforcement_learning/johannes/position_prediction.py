@@ -15,6 +15,8 @@ from sklearn.model_selection import train_test_split
 from communication_protokoll import CommunicationProtocol, PositionDefinition
 from utils import *
 
+import ast 
+
 
 class PositionPrediction(nn.Module):
     def __init__(self, input_dim):
@@ -136,6 +138,15 @@ class Dataset(Dataset):
         data, label = self.data[idx], self.labels[idx]
         data = data.apply(lambda row: self.transformation(row["current_obs"], row["last_obs"], row["message"]), axis=1)
         return torch.tensor(data), torch.tensor(label)
+
+def dumbConvFunction(col):
+    new_col = []
+    for array in col:
+        s_arr = array.split("\r\n")
+        s_arr[0] = s_arr[1:]
+        
+    return
+    
     
 def main():
     
@@ -153,9 +164,10 @@ def main():
     elements = [1, 2, 5, 10, 11, 12, 13]
 
 
-    data = pd.read_csv("msg_pred_data.csv")
+    data = pd.read_csv(".\..\..\msg_pred_data.csv")
     data = data.drop(columns=["Unnamed: 0"], axis=1)
-    data = [np.array(data["current_obs"]), ]
+    data = dumbConvFunction(data["current_obs"])
+    print(data)
     current_obs = []
     last_obs = []
     data["last_obs"]
@@ -164,12 +176,6 @@ def main():
 
     print(message)
 
-
-    for arr in data:
-        for 
-        print(val)
-        print(type(val))
-        break
 
 
     input = data[['current_obs', 'last_obs', 'message']].copy()

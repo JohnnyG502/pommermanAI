@@ -27,7 +27,10 @@ for game in true_obs:
     last_obs = {}
     last_perf_obs = {}
     for index, step in enumerate(game):
+        print(step)
         step_arr = []
+
+        # needed for finding teammate pos
         agents_pos = {i: "_" for i in range (10, 14)}
         alive = step[0]["alive"]
         team_1 = False # 10 and 12
@@ -40,9 +43,11 @@ for game in true_obs:
                 agents_pos[value] = step[value-10]["position"]
 
             if team_1:
+                # index == agentId
                 current_1 = step[0]["board"]
                 e1_pos, e2_pos = transformator.ObservationArrToPosTuple(current_1, [11, 13])
                 msg_1 = translator.PositionToMessage(transformator.PosTupleToQuadrant(e1_pos, e2_pos, agents_pos[10]))
+                # index == agentId
                 current_2 = step[2]["board"]
                 e1_pos, e2_pos = transformator.ObservationArrToPosTuple(current_2, [11, 13])
                 msg_2 = translator.PositionToMessage(transformator.PosTupleToQuadrant(e1_pos, e2_pos, agents_pos[12]))
@@ -113,8 +118,13 @@ for game in true_obs:
                 temp_sample_2 = {"current_obs": current_4, "last_obs": past_4, "current_true_obs": current_4_true, "last_true_obs": past_4_true, "message": msg_4}
                 dataset = dataset.append(temp_sample_1, ignore_index=True)
                 dataset = dataset.append(temp_sample_2, ignore_index=True)
+        print(dataset)
+        print(dataset.info())
+        print(dataset.describe())
+        break
 
-dataset.to_csv("msg_pred_data.csv")
+
+dataset.to_csv("msg_pred_data_2.csv")
 
     
 
