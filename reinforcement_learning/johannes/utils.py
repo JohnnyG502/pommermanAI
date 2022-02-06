@@ -2,16 +2,17 @@
 import numpy as np
 
 class obsToPlanes():
-    def __init__(size, max_bombs=5):
+    def __init__(self, size, max_bombs=5, max_flame_life=3):
         # 18 x lenght x width planes
         self.planes = np.zeros((18, size, size))
         self.size = size
         self.max_bomb_count = max_bombs
+        self.max_flame_life = max_flame_life
 
-    def concatObservations(last_obs, current_obs, message_obs):
+    def concatObservations(self, last_obs, current_obs, message_obs):
         return np.concatenate((last_obs, current_obs, message_obs), axis=2)
 
-    def planeFilling(obs, max_bombs_agent=1, planes=self.planes.copy()):
+    def planeFilling(self, obs, planes, max_bombs_agent=1):
         
         """
         obs == state dictionary of an agent
@@ -53,25 +54,29 @@ class obsToPlanes():
         * Self: Can Kick --> int 17
 
         """
-        for row in range(size):
-            for col in range(size):
+        for row in range(self.size):
+            for col in range(self.size):
                 planes = self.cellToBoardPlanes(obs, planes, row, col, max_bombs_agent)
         return planes
 
     
-    def cellToBoardPlanes(obs, planes, row, col, max_bombs_agent):
-        plane, val = self.ValueToPlaneAndValue(obs["board"][row,col])
-        if val == -1:  # Bomb or Flame
-            if plane == 5:  # Bomb
-                val = 1 / obs["bomb_life"]
-                planes[6, row, col] = obs["bomb_blast_strength"][row, col] / self.size
-                move_plane, value = self.bombToMovement(obs["bomb_moving_direction"])
-                planes[move_plane, row, col] = value
-            elif plane == 9:  # Flame
-                val = 1 - (1 / obs["flame_life"])
-            else:
-                raise ValueError("no bomb and no flame")
-        planes[plane, row, val] = val
+    def cellToBoardPlanes(self, obs, planes, row, col, max_bombs_agent):
+        index = obs["board"][row, col]
+        if index != 0 and index != 5:
+            plane, val = self.ValueToPlaneAndValue(index)
+            if val == -1:  # Bomb or Flame
+                if plane == 5:  # Bomb
+                    val = 1 / obs["bomb_life"][row, col]
+                    planes[6, row, col] = obs["bomb_blast_strength"][row, col] / self.size
+                    if obs["bomb_moving_direction"][row, col] != 0:
+                        move_plane, move_value = self.bombToMovement(obs["bomb_moving_direction"][row, col]) 
+                        planes[move_plane, row, col] = move_value
+                elif plane == 9:  # Flame
+                    val = 1 - ( 1 - (obs["flame_life"][row, col] / self.max_flame_life))
+                else:
+                    raise ValueError("no bomb and no flame")
+            planes[plane, row, col] = val
+        
 
         # Other information to planes
         planes[14, row, col] = obs["blast_strength"] / self.size
@@ -80,7 +85,7 @@ class obsToPlanes():
         planes[17, row, col] = 1 if obs["can_kick"] else 0
         return planes
 
-    def ValueToPlaneAndValue(value):
+    def ValueToPlaneAndValue(self, value):
         """
         translates the given value into some the 18 planes
         returns (plane_index, value)
@@ -107,12 +112,30 @@ class obsToPlanes():
             return 12, 1
         elif value == 13: 
             return 13, 1
+        else:
+            raise ValueError("Error in value of obs field")
     
-    def bombToMovement(direction):
-        # returns plane_index, value
+    def bombToMovement(self, direction):
+         # returns plane_index, value
         if direction == 1: return 8, 1
         elif direction == 2: return 8, -1
         elif direction == 3: return 7, 1
         elif direction == 4: return 7, -1
         else: raise ValueError("something wrong with bomb movement")
+
+def main():
+    count = 0
+    data = np.load("./states.npy", allow_pickle=True)
+    obj = obsToPlanes(11)
+    for game in data:
+        for state in game:
+            for agent in state:
+                planes = obj.planeFilling(agent, obj.planes)  
+        count += 1
+        print(count)
+        if count > 5: break
+
+
+if __name__ == "__main__":
+    main()
 

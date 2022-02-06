@@ -21,13 +21,14 @@ dataset = pd.DataFrame(columns=["current_obs", "last_obs", "current_true_obs", "
 transformator = PositionDefinition()
 translator = CommunicationProtocol()
 
+data_arr = []
+
 
 for game in true_obs:
     game_arr = []
     last_obs = {}
     last_perf_obs = {}
     for index, step in enumerate(game):
-        print(step)
         step_arr = []
 
         # needed for finding teammate pos
@@ -76,10 +77,12 @@ for game in true_obs:
                 last_perf_obs[10] = current_1_true
                 last_perf_obs[12] = current_2_true
 
-                temp_sample_1 = {"current_obs": current_1, "last_obs": past_1, "current_true_obs": current_1_true, "last_true_obs": past_1_true, "message": msg_1}
-                temp_sample_2 = {"current_obs": current_2, "last_obs": past_2, "current_true_obs": current_2_true, "last_true_obs": past_2_true, "message": msg_2}
-                dataset = dataset.append(temp_sample_1, ignore_index=True)
-                dataset = dataset.append(temp_sample_2, ignore_index=True)
+                #temp_sample_1 = {"current_obs": current_1, "last_obs": past_1, "current_true_obs": current_1_true, "last_true_obs": past_1_true, "message": msg_1}
+                #temp_sample_2 = {"current_obs": current_2, "last_obs": past_2, "current_true_obs": current_2_true, "last_true_obs": past_2_true, "message": msg_2}
+                #dataset = dataset.append(temp_sample_1, ignore_index=True)
+                #dataset = dataset.append(temp_sample_2, ignore_index=True)
+                data_arr.append([current_1, past_1, current_1_true, msg_1])
+                data_arr.append([current_2, past_2, current_2_true, msg_2])
                 
             if team_2:
 
@@ -114,17 +117,17 @@ for game in true_obs:
                 last_perf_obs[11] = current_3_true
                 last_perf_obs[13] = current_4_true
 
-                temp_sample_1 = {"current_obs": current_3, "last_obs": past_3, "current_true_obs": current_3_true, "last_true_obs": past_3_true, "message": msg_3}
-                temp_sample_2 = {"current_obs": current_4, "last_obs": past_4, "current_true_obs": current_4_true, "last_true_obs": past_4_true, "message": msg_4}
-                dataset = dataset.append(temp_sample_1, ignore_index=True)
-                dataset = dataset.append(temp_sample_2, ignore_index=True)
-        print(dataset)
-        print(dataset.info())
-        print(dataset.describe())
-        break
+                #temp_sample_1 = {"current_obs": current_3, "last_obs": past_3, "current_true_obs": current_3_true, "last_true_obs": past_3_true, "message": msg_3}
+                #temp_sample_2 = {"current_obs": current_4, "last_obs": past_4, "current_true_obs": current_4_true, "last_true_obs": past_4_true, "message": msg_4}
+                #dataset = dataset.append(temp_sample_1, ignore_index=True)
+                #dataset = dataset.append(temp_sample_2, ignore_index=True)
+                data_arr.append([current_3, past_3, current_3_true, msg_3])
+                data_arr.append([current_4, past_4, current_4_true, msg_4])
 
 
-dataset.to_csv("msg_pred_data_2.csv")
+np.save("cur_last_curTrue_msg.npy", data_arr)
+
+
 
     
 
