@@ -15,6 +15,15 @@ GitHub: https://github.com/lthiede/PommerLearn
 
 C) pommerman_il
 GitHub: https://github.com/wanjads/pommerman_il
+Description: This repository provides the weight initalization approaches. 
+For using the DodgeBoard or the BombBoard you have to set the pommerman enviroment accordingly.
+To start a game use the main.py file and set the pommerman enviorment in line 44 to the enviorment you want to use.
+BombBoard: pommerman.make('BombBoard-v0', self.agent_list)
+DodgeBoard: pommerman.make('DodgeBoard-v0', self.agent_list)
+
+You can change the default constants of these boards in the constants.py
+We added make_bomb_board function in the v0.py and utility.py and two functions to define the boards in the configs.py.
+Also we added a stoner_agent.py.
 
 D) PommermanAI 
 GitHub: https://github.com/JohnnyG502/pommermanAI
