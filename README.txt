@@ -11,7 +11,7 @@ GitHub: https://github.com/wanjads/agent007
 Description: In this repository, you can find the implementation of Agent007, a non-learning improved SimpleAgent. The repository is based on Resnick's pommerman playground and is used analogously. To start a game, use the file examples/simple_ffa_run.py. Our agent can be found in the file pommerman/agents/agent007.py
 
 B) PommerLearn
-GitHub: https://github.com/lthiede/PommerLearn
+GitHub: https://github.com/lthiede/PommerLearn/commit/914a58f101ecd8b553565bf8991537ed6cd4623c
 
 C) pommerman_il
 GitHub: https://github.com/wanjads/pommerman_il
